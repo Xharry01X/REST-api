@@ -1,37 +1,41 @@
 const expressAsyncHandler = require("express-async-handler");
-const bcrypt = require("bcryptjs");
-const User = require( "../db/models/user" );
+const user=require("../db/models/user")
 
 const signUp = expressAsyncHandler(async (req, res) => {
-  const { userType, firstName, lastName, email, password } = req.body;
+  const body = req.body;
+
+  if (['1', '2'].includes(body.userType)) {
+    return res.status(400).json({
+      status: "fail",
+      message: "Invalid user type"
+    });
+  }
 
   try {
-    // Check if the email is already taken
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
+    const newUser = await user.create({
+      userType: body.userType,
+      firstName: body.firstName,
+      lastName: body.lastName,
+      email: body.email,
+      password: body.password,
+    });
+
+    if (!newUser) {
       return res.status(400).json({
         status: "fail",
-        message: "Email is already in use",
+        message: "Failed to create User",
       });
     }
-
-    // Hash the password before saving
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = await User.create({
-      userType,
-      firstName,
-      lastName,
-      email,
-      password: hashedPassword,
-    });
 
     return res.status(201).json({
       status: "success",
       data: newUser,
     });
   } catch (error) {
-    console.error('Error creating user:', error);
+    // Log the error message to the console
+    console.error("Error creating user:", error.message);
+
+    // Return an error response
     return res.status(500).json({
       status: "fail",
       message: "Internal Server Error",

@@ -1,54 +1,49 @@
 'use strict';
 const {
   Model,
-  DataTypes
+  Sequelize
 } = require('sequelize');
 const sequelize = require("../../database/database");
 
-// Define the User model
-const User = sequelize.define('user', {
+//by defaut it make user to plural
+const user=sequelize.define('user',{
   id: {
     allowNull: false,
     autoIncrement: true,
     primaryKey: true,
-    type: DataTypes.INTEGER
+    type: Sequelize.INTEGER
   },
   userType: {
-    type: DataTypes.ENUM('seller', 'buyer'), // Define ENUM values here
-    allowNull: false
+    type: Sequelize.ENUM('seller', 'buyer'),
   },
   firstName: {
-    type: DataTypes.STRING,
-    allowNull: false
+    type: Sequelize.STRING
   },
   lastName: {
-    type: DataTypes.STRING,
-    allowNull: false
+    type: Sequelize.STRING
   },
   email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true
+    type: Sequelize.STRING
   },
   password: {
-    type: DataTypes.STRING,
-    allowNull: false
+    type: Sequelize.STRING
   },
   createdAt: {
     allowNull: false,
-    type: DataTypes.DATE
+    type: Sequelize.DATE
   },
   updatedAt: {
     allowNull: false,
-    type: DataTypes.DATE
+    type: Sequelize.DATE
   },
-  deletedAt: {
-    type: DataTypes.DATE,
-  }
-}, {
-  paranoid: true, // Enable soft deletes by using the deletedAt field
-  freezeTableName: true, // Prevent Sequelize from pluralizing the table name
-  modelName: 'user', // Define the model name
-});
+  deletedAt:{
+    
+     type:Sequelize.DATE,
+  },
+},{
+  paranoid:true, //actual data is not deleted but maked as it is deleted, add deleted At
+  freezeTableName:true,
+  modelName:"user",
+})
 
-module.exports = User;
+module.exports=user

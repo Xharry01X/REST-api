@@ -1,8 +1,10 @@
 'use strict';
 /** @type {import('sequelize-cli').Migration} */
+
+'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('user', { // Pluralize table name
+    await queryInterface.createTable('user', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -10,7 +12,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       userType: {
-        type: Sequelize.ENUM('seller', 'buyer'), // Define ENUM values here
+        type: Sequelize.ENUM('seller', 'buyer'),
         allowNull: false
       },
       firstName: {
@@ -39,11 +41,14 @@ module.exports = {
         type: Sequelize.DATE
       },
       deletedAt: {
+        
         type: Sequelize.DATE,
       }
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('user'); // Pluralize table name
+    await queryInterface.dropTable('user');
+    await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_user_userType";');
   }
 };
+
