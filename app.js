@@ -5,7 +5,9 @@ require("dotenv").config()
 
 const port=process.env.APP_PORT || 5000
 
-app.use("/",authRouting)
+app.use(express.json())
+
+app.use("/api/auth",authRouting)
 
 app.listen(port,()=>{
     console.log(`Server live at ${port}`);

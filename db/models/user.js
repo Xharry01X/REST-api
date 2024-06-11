@@ -1,46 +1,54 @@
 'use strict';
 const {
   Model,
-  Sequelize
+  DataTypes
 } = require('sequelize');
 const sequelize = require("../../database/database");
 
-//by defaut it make user to plural
-module.exports=sequelize.define('user',{
+// Define the User model
+const User = sequelize.define('user', {
   id: {
     allowNull: false,
     autoIncrement: true,
     primaryKey: true,
-    type: Sequelize.INTEGER
+    type: DataTypes.INTEGER
   },
   userType: {
-    type: Sequelize.ENUM
+    type: DataTypes.ENUM('seller', 'buyer'), // Define ENUM values here
+    allowNull: false
   },
   firstName: {
-    type: Sequelize.STRING
+    type: DataTypes.STRING,
+    allowNull: false
   },
   lastName: {
-    type: Sequelize.STRING
+    type: DataTypes.STRING,
+    allowNull: false
   },
   email: {
-    type: Sequelize.STRING
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true
   },
   password: {
-    type: Sequelize.STRING
+    type: DataTypes.STRING,
+    allowNull: false
   },
   createdAt: {
     allowNull: false,
-    type: Sequelize.DATE
+    type: DataTypes.DATE
   },
   updatedAt: {
     allowNull: false,
-    type: Sequelize.DATE
+    type: DataTypes.DATE
   },
-  deleteAt:{
-     type:Sequelize.DATE,
-  },
-},{
-  paranoid:true, //actual data is not deleted but maked as it is deleted, add deleted At
-  freezeTableName:true,
-  modelName:"user",
-})
+  deletedAt: {
+    type: DataTypes.DATE,
+  }
+}, {
+  paranoid: true, // Enable soft deletes by using the deletedAt field
+  freezeTableName: true, // Prevent Sequelize from pluralizing the table name
+  modelName: 'user', // Define the model name
+});
+
+module.exports = User;
