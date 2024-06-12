@@ -1,6 +1,9 @@
 const expressAsyncHandler = require("express-async-handler");
 const user = require("../db/models/user");
 const jwt = require("jsonwebtoken");
+const bcrypt=require("bcryptjs");
+const catchAsync = require( "../utils/catchAsync" );
+const AppError = require( "../utils/appError" );
 require("dotenv").config();
 
 const generateToken = (payload) => {
@@ -9,14 +12,12 @@ const generateToken = (payload) => {
   });
 };
 
-const signUp = expressAsyncHandler(async (req, res) => {
+const signUp = catchAsync(expressAsyncHandler(async (req, res,next) => {
   const body = req.body;
 
   if (['1', '2'].includes(body.userType)) {
-    return res.status(400).json({
-      status: "fail",
-      message: "Invalid user type",
-    });
+    throw new AppError("Inavid Usertype",400)
+   
   }
 
   try {
@@ -24,10 +25,8 @@ const signUp = expressAsyncHandler(async (req, res) => {
     const existingUser = await user.findOne({ where: { email: body.email } });
 
     if (existingUser) {
-      return res.status(400).json({
-        status: "fail",
-        message: "User already exists",
-      });
+      return next(new AppError("User already exist"))
+     
     }
 
     const newUser = await user.create({
@@ -38,6 +37,10 @@ const signUp = expressAsyncHandler(async (req, res) => {
       password: body.password,
       confirmPassword: body.confirmPassword,
     });
+    if (!newUser) {
+      return next (new AppError("Failed to create User",400))
+     
+    }
 
     //delete password from result and adding token
     const result = newUser.toJSON();
@@ -48,12 +51,7 @@ const signUp = expressAsyncHandler(async (req, res) => {
       id: result.id,
     });
 
-    if (!result) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Failed to create User",
-      });
-    }
+
 
     return res.status(201).json({
       status: "success",
@@ -69,6 +67,39 @@ const signUp = expressAsyncHandler(async (req, res) => {
       message: "Internal Server Error",
     });
   }
+}));
+
+//login controller
+const login = expressAsyncHandler(async (req, res,next) => {
+  const { email, password } = req.body;
+  
+  try {
+    if (!email || !password) {
+     return next(new AppError("Please enter valid email or password"))
+    }
+
+    const result = await user.findOne({ where: { email } });
+
+    if (!result || !(await bcrypt.compare(password, result.password))) {
+      return next(new AppError("Check email or password",400))
+    }
+
+    const token = generateToken({
+      id: result.id,
+    });
+
+    return res.json({
+      status: "success",
+      token,
+    });
+
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
 });
 
-module.exports = { signUp };
+module.exports = { signUp , login};

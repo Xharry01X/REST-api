@@ -6,6 +6,7 @@ const {
 } = require('sequelize');
 const bcrypt=require("bcryptjs")
 const sequelize = require("../../database/database");
+const AppError = require( '../../utils/appError' );
 
 //by defaut it make user to plural
 const user=sequelize.define('user',{
@@ -38,8 +39,8 @@ const user=sequelize.define('user',{
       const hashPassword=bcrypt.hashSync(value,10);
       this.setDataValue('password',hashPassword);
     }else{
-      throw new Error(
-        'Password and confirm password should be same'
+      throw new AppError(
+        'Password and confirm password should be same',400
       )
     }
   }
