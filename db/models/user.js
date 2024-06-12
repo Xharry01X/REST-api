@@ -1,8 +1,10 @@
 'use strict';
 const {
   Model,
-  Sequelize
+  Sequelize,
+  DataTypes
 } = require('sequelize');
+const bcrypt=require("bcryptjs")
 const sequelize = require("../../database/database");
 
 //by defaut it make user to plural
@@ -11,34 +13,48 @@ const user=sequelize.define('user',{
     allowNull: false,
     autoIncrement: true,
     primaryKey: true,
-    type: Sequelize.INTEGER
+    type: DataTypes.INTEGER
   },
   userType: {
-    type: Sequelize.ENUM('seller', 'buyer'),
+    type: DataTypes.ENUM('seller', 'buyer'),
   },
   firstName: {
-    type: Sequelize.STRING
+    type: DataTypes.STRING
   },
   lastName: {
-    type: Sequelize.STRING
+    type: DataTypes.STRING
   },
   email: {
-    type: Sequelize.STRING
+    type: DataTypes.STRING
   },
   password: {
-    type: Sequelize.STRING
+    type: DataTypes.STRING
+  },
+  // Sequelize provide getter and setter method
+  confirmPassword:{
+  type:DataTypes.VIRTUAL,
+  set(value){
+    if(value === this.password){
+      const hashPassword=bcrypt.hashSync(value,10);
+      this.setDataValue('password',hashPassword);
+    }else{
+      throw new Error(
+        'Password and confirm password should be same'
+      )
+    }
+  }
   },
   createdAt: {
     allowNull: false,
-    type: Sequelize.DATE
+    type: DataTypes.DATE
   },
   updatedAt: {
     allowNull: false,
-    type: Sequelize.DATE
+    type: DataTypes.DATE
   },
   deletedAt:{
     
-     type:Sequelize.DATE,
+     type:DataTypes.DATE,
   },
 },{
   paranoid:true, //actual data is not deleted but maked as it is deleted, add deleted At
