@@ -30,6 +30,15 @@ const globalErrorHandler = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
 
+
+    if(err.name === 'SequelizeValidationError'){
+        err = new AppError(err.errors[0].message,400)
+    }
+
+    if(err.name === 'SequelizeUniqueConstraintError'){
+        err = new AppError(err.errors[0].message,400)
+    }
+
     if (process.env.NODE_ENV === 'development') {
         sendErrorDev(err, res);
     } else if (process.env.NODE_ENV === 'production') {

@@ -1,8 +1,7 @@
 const express = require("express");
 const authRouting = require("./route/authRouting");
-const catchAsync = require("./utils/catchAsync");
+const globalErrorHandler = require("./controller/errorHandling");
 const AppError = require("./utils/appError");
-const globalErrorHandler = require( "./controller/errorHandling" );
 require("dotenv").config();
 
 const app = express();
@@ -13,10 +12,10 @@ app.use(express.json());
 app.use("/api/auth", authRouting);
 
 // Handle undefined routes
-app.use("*",catchAsync(async (req, res, next) => {
-    throw new AppError(`Can't find ${req.originalUrl} on this server`, 404);
+app.all('*', (req, res, next) => {
+    next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+});
 
-}))
 // Global error handler
 app.use(globalErrorHandler);
 
