@@ -73,4 +73,37 @@ const login = catchAsync(expressAsyncHandler(async (req, res, next) => {
   });
 }));
 
-module.exports = { signUp, login };
+const authentication = catchAsync(async (req, res, next) => {
+  try {
+    // Get token from header
+    let token = '';
+
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+
+    if (!token) {
+      return next(new AppError('Please login to get access', 401));
+    }
+
+    // Token verification
+    const tokenDetail = jwt.verify(token, process.env.SECRET_KEY);
+
+    // Fetch the user by primary key
+    const fetchUser = await user.findByPk(tokenDetail.id); // Assuming the tokenDetail contains the user ID
+
+    if (!fetchUser) {
+      return next(new AppError('User no longer exists', 400));
+    }
+
+    // Attach user to the request
+    req.user = fetchUser;
+
+    // Proceed to the next middleware
+    return next();
+
+  } catch (error) {
+    return next(error);
+  }
+});
+module.exports = { signUp, login, authentication};

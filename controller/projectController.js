@@ -3,6 +3,7 @@ const Project=require("../db/models/project")
 const createProject = catchAsync(async (req, res, next) => {
     try {
       const { title, isFeatured, productImage, price, shortDescription, description, productUrl, category, tags } = req.body;
+      const userId=req.user.id;
   
       // Convert to arrays if they aren't already
       const productImageArray = Array.isArray(productImage) ? productImage : [productImage];
@@ -19,7 +20,7 @@ const createProject = catchAsync(async (req, res, next) => {
         productUrl,
         category: categoryArray,
         tags: tagsArray,
-        createdBy: 1, // Replace with actual user ID in a real scenario
+        createdBy: userId, // Replace with actual user ID in a real scenario
       });
   
       return res.status(201).json({
