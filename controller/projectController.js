@@ -1,5 +1,6 @@
 const catchAsync = require( "../utils/catchAsync" );
-const Project=require("../db/models/project")
+const Project=require("../db/models/project");
+const AppError = require( "../utils/appError" );;
 const createProject = catchAsync(async (req, res, next) => {
     try {
       const { title, isFeatured, productImage, price, shortDescription, description, productUrl, category, tags } = req.body;
@@ -35,6 +36,18 @@ const createProject = catchAsync(async (req, res, next) => {
       return next(error);
     }
   });
+
+  const getAllProject=catchAsync(async(req,res,next)=>{
+   try {
+     const result=await Project.findAll();
+     return res.json({
+      status:"success",
+      data:result,
+     })
+   } catch (error) {
+    return next(new AppError("Failed to get Product",403))
+   }
+  })
   
-  module.exports = { createProject };
+  module.exports = { createProject,getAllProject };
   
