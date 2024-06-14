@@ -106,4 +106,15 @@ const authentication = catchAsync(async (req, res, next) => {
     return next(error);
   }
 });
-module.exports = { signUp, login, authentication};
+
+// Authorization middleware
+const restrictTo = (...userTypes) => {
+  return (req, res, next) => {
+    if (!userTypes.includes(req.user.userType)) {
+      return next(new AppError("You don't have permission to perform this action", 403));
+    }
+    return next();
+  };
+};
+
+module.exports = { signUp, login, authentication, restrictTo };

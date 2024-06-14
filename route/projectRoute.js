@@ -1,8 +1,9 @@
 const express=require("express")
 const { createProject } = require( "../controller/projectController" )
-const { authentication } = require( "../controller/authController" )
+const { authentication, restrictTo } = require( "../controller/authController" )
 const projectRouter=express.Router()
 
-projectRouter.route("/create").post(authentication,createProject)
+projectRouter.route("/create").post(authentication,restrictTo('seller'),createProject)
+projectRouter.route("/").get()
 
 module.exports=projectRouter
